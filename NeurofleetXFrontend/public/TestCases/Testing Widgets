@@ -1,0 +1,12 @@
+import { render, screen } from "@testing-library/react";
+import TrafficSignalWidget from "./traffic_signal_widget";
+
+test("renders green signal", () => {
+  render(<TrafficSignalWidget status="green" />);
+  expect(screen.getByAltText("Green Signal")).toBeInTheDocument();
+});
+
+test("renders red signal", () => {
+  render(<TrafficSignalWidget status="red" />);
+  expect(screen.getByAltText("Red Signal")).toBeInTheDocument();
+});
