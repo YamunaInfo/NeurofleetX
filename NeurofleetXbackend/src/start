@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "🚀 Starting Rover Backend..."
+npm run dev
