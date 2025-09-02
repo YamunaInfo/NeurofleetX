@@ -1,0 +1,20 @@
+import { render, screen, fireEvent } from "@testing-library/react";
+import LoginScreen from "./login_screen";
+
+test("renders login form fields", () => {
+  render(<LoginScreen />);
+  expect(screen.getByPlaceholderText(/username/i)).toBeInTheDocument();
+  expect(screen.getByPlaceholderText(/password/i)).toBeInTheDocument();
+});
+
+test("login button should be disabled when inputs are empty", () => {
+  render(<LoginScreen />);
+  expect(screen.getByRole("button", { name: /login/i })).toBeDisabled();
+});
+
+test("login button enabled when inputs are filled", () => {
+  render(<LoginScreen />);
+  fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: "admin" } });
+  fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: "12345" } });
+  expect(screen.getByRole("button", { name: /login/i })).toBeEnabled();
+});
