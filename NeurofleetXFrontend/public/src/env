@@ -1,0 +1,8 @@
+# API Configuration
+REACT_APP_API_BASE_URL=https://api.smartnav.ai/v1
+
+# Mapbox or Google Maps API Key
+REACT_APP_MAPBOX_TOKEN=your_mapbox_token_here
+
+# Notification Channel
+REACT_APP_NOTIFICATION_CHANNEL=emergency-alerts
