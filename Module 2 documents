@@ -1,0 +1,229 @@
+Module 2: Vehicle Performance, Inventory and Tracking 
+
+1. Overview 
+
+This module manages all fleet vehicles while monitoring their performance and operational efficiency. An extension of this module includes a specialized Emergency Vehicle Dashboard, providing real-time insights for critical response units. 
+
+Objectives: 
+
+Maintain up-to-date vehicle inventory. 
+
+Monitor fleet performance metrics. 
+
+Track emergency vehicles in real-time for rapid response. 
+
+Analyze traffic and route data to optimize emergency operations. 
+
+ 
+
+2. Core Features 
+
+2.1 Vehicle Inventory Management 
+
+Maintain vehicle records: model, registration, status, assigned driver. 
+
+Track vehicle lifecycle: acquisition → maintenance → retirement. 
+
+2.2 Performance Tracking 
+
+Daily/weekly/monthly usage metrics: fuel efficiency, distance traveled, idle time. 
+
+Identify underperforming vehicles or vehicles in need of maintenance. 
+
+2.3 Maintenance & Fuel Management 
+
+Schedule preventive maintenance. 
+
+Track fuel consumption per vehicle. 
+
+Alerts for anomalies or upcoming service. 
+
+2.4 Driver Assignment & Monitoring 
+
+Manage driver profiles. 
+
+Track driver performance and incidents. 
+
+2.5 Emergency Vehicle Dashboard 
+
+This sub-module provides real-time monitoring and analytics for emergency services: 
+
+Key Components: 
+
+🚑 Ambulance Route Status 
+
+Track live location of all ambulances. 
+
+Display estimated arrival times to destinations. 
+
+Highlight fastest routes considering real-time traffic data. 
+
+🚒 Fire Truck Route Status 
+
+Monitor active fire trucks. 
+
+Provide optimized routes to emergency locations. 
+
+Visual alerts for roadblocks or delays. 
+
+🚓 Police Vehicle Tracking 
+
+Real-time GPS tracking of police vehicles. 
+
+Assign nearest units to incidents. 
+
+Monitor patrol coverage and response efficiency. 
+
+📊 Traffic Control Analytics 
+
+Dashboard visualizations: congestion maps, traffic density heatmaps. 
+
+Integrate with vehicle GPS data to predict travel time. 
+
+Identify alternate routes for emergency vehicles to reduce response time. 
+
+Benefits: 
+
+Faster emergency response through optimized routing. 
+
+Improved coordination between different emergency units. 
+
+Reduced delays caused by traffic congestion. 
+
+Centralized monitoring for fleet managers and emergency dispatchers. 
+
+ 
+
+3. Dashboard Elements 
+
+Fleet Overview Widget: Total vehicles, active vs inactive, maintenance due. 
+
+Performance Analytics: Fuel efficiency, distance traveled, vehicle utilization. 
+
+Maintenance Schedule Chart: Calendar or Gantt view for scheduled service. 
+
+Vehicle Status Table: Sortable table with vehicle, driver, and performance info. 
+
+Emergency Vehicle Panel: 
+
+Ambulance, fire truck, police vehicle status and live location. 
+
+Alerts for route delays or incidents. 
+
+Traffic Analytics Panel: Heatmaps and charts for traffic congestion and alternate routes. 
+
+Alerts & Notifications: Overdue services, fuel anomalies, emergency incidents. 
+
+ 
+
+4. Data Structure (Extended for Emergency Vehicles) 
+
+Field 
+
+Type 
+
+Description 
+
+Vehicle ID 
+
+String 
+
+Unique vehicle identifier 
+
+Vehicle Type 
+
+String 
+
+Ambulance, Fire Truck, Police, etc. 
+
+Model 
+
+String 
+
+Vehicle model 
+
+Registration Number 
+
+String 
+
+License plate 
+
+Status 
+
+Enum 
+
+Active / In Maintenance / On Duty 
+
+Last Service Date 
+
+Date 
+
+Last maintenance date 
+
+Fuel Consumed 
+
+Float 
+
+Liters/km 
+
+Assigned Driver 
+
+String 
+
+Driver ID 
+
+Trip Distance 
+
+Float 
+
+Total km traveled 
+
+Current Location 
+
+Geo Coordinate 
+
+Real-time GPS location 
+
+Assigned Route 
+
+String 
+
+Current route ID 
+
+Estimated Arrival Time 
+
+Timestamp 
+
+ETA to destination 
+
+ 
+
+5. Technologies Suggested 
+
+Frontend: React.js / Angular / Vue.js (dashboard UI) 
+
+Backend: java Spring Boot 
+
+Database: PostgreSQL / MySQL / MongoDB (fleet & emergency data) 
+
+Real-time Tracking: Web Sockets, MQTT, or Firebase Realtime Database 
+
+Visualization: Chart.js, D3.js, or High charts (performance & traffic charts) 
+
+GPS/IoT Integration: GPS devices or mobile app trackers for emergency vehicles 
+
+ 
+
+6. Benefits of Combined Module 
+
+Unified vehicle performance monitoring and emergency response tracking. 
+
+Optimized fleet operations and maintenance scheduling. 
+
+Faster and safer emergency services through traffic-aware routing. 
+
+Data-driven decision-making for fleet managers and dispatchers. 
+
+ 
+
+ 
