@@ -1,200 +1,60 @@
-Module 2: Vehicle Performance, Inventory and Tracking 
+Module 2: Emergency, Traffic Monitoring, Analytics
 
-1. Overview 
+1. Overview
 
-This module manages all fleet vehicles while monitoring their performance and operational efficiency. An extension of this module includes a specialized Emergency Vehicle Dashboard, providing real-time insights for critical response units. 
+Module 2 handles real-time monitoring of traffic and emergencies using IoT sensors and AI.
 
-Objectives: 
+Ensures rapid response to accidents, congestion, and unusual traffic patterns.
 
-Maintain up-to-date vehicle inventory. 
+Provides analytics dashboards for decision-making.
 
-Monitor fleet performance metrics. 
+2. Components
 
-Track emergency vehicles in real-time for rapid response. 
+Emergency Detection: Detects accidents or hazards via sensors/cameras.
 
-Analyze traffic and route data to optimize emergency operations. 
+Traffic Monitoring: Collects live traffic data from cameras, GPS, and IoT devices.
 
- 
+Analytics Engine: AI models analyze patterns, predict congestion, and optimize traffic flow.
 
-2. Core Features 
+Alerts System: Sends notifications to authorities and users in case of emergencies.
 
-2.1 Vehicle Inventory Management 
+3. Data Flow
 
-Maintain vehicle records: model, registration, status, assigned driver. 
+IoT Sensors → Backend APIs → AI Analytics Engine → Dashboard & Alerts
 
-Track vehicle lifecycle: acquisition → maintenance → retirement. 
 
-2.2 Performance Tracking 
+4. Key Features
 
-Daily/weekly/monthly usage metrics: fuel efficiency, distance traveled, idle time. 
+Real-time traffic heatmaps.
 
-Identify underperforming vehicles or vehicles in need of maintenance. 
+Accident/emergency alerts.
 
-2.3 Maintenance & Fuel Management 
+Historical analytics for planning.
 
-Schedule preventive maintenance. 
+Predictive traffic congestion models.
 
-Track fuel consumption per vehicle. 
 
-Alerts for anomalies or upcoming service. 
 
-2.4 Driver Assignment & Monitoring 
 
-Manage driver profiles. 
 
-Track driver performance and incidents. 
 
-2.5 Emergency Vehicle Dashboard 
 
-This sub-module provides real-time monitoring and analytics for emergency services: 
 
-Key Components: 
 
-🚑 Ambulance Route Status 
 
-Track live location of all ambulances. 
 
-Display estimated arrival times to destinations. 
-
-Highlight fastest routes considering real-time traffic data. 
-
-🚒 Fire Truck Route Status 
-
-Monitor active fire trucks. 
-
-Provide optimized routes to emergency locations. 
-
-Visual alerts for roadblocks or delays. 
-
-🚓 Police Vehicle Tracking 
-
-Real-time GPS tracking of police vehicles. 
-
-Assign nearest units to incidents. 
-
-Monitor patrol coverage and response efficiency. 
-
-📊 Traffic Control Analytics 
-
-Dashboard visualizations: congestion maps, traffic density heatmaps. 
-
-Integrate with vehicle GPS data to predict travel time. 
-
-Identify alternate routes for emergency vehicles to reduce response time. 
-
-Benefits: 
-
-Faster emergency response through optimized routing. 
-
-Improved coordination between different emergency units. 
-
-Reduced delays caused by traffic congestion. 
-
-Centralized monitoring for fleet managers and emergency dispatchers. 
 
  
 
-3. Dashboard Elements 
 
-Fleet Overview Widget: Total vehicles, active vs inactive, maintenance due. 
 
-Performance Analytics: Fuel efficiency, distance traveled, vehicle utilization. 
 
-Maintenance Schedule Chart: Calendar or Gantt view for scheduled service. 
 
-Vehicle Status Table: Sortable table with vehicle, driver, and performance info. 
 
-Emergency Vehicle Panel: 
 
-Ambulance, fire truck, police vehicle status and live location. 
 
-Alerts for route delays or incidents. 
 
-Traffic Analytics Panel: Heatmaps and charts for traffic congestion and alternate routes. 
 
-Alerts & Notifications: Overdue services, fuel anomalies, emergency incidents. 
-
- 
-
-4. Data Structure (Extended for Emergency Vehicles) 
-
-Field 
-
-Type 
-
-Description 
-
-Vehicle ID 
-
-String 
-
-Unique vehicle identifier 
-
-Vehicle Type 
-
-String 
-
-Ambulance, Fire Truck, Police, etc. 
-
-Model 
-
-String 
-
-Vehicle model 
-
-Registration Number 
-
-String 
-
-License plate 
-
-Status 
-
-Enum 
-
-Active / In Maintenance / On Duty 
-
-Last Service Date 
-
-Date 
-
-Last maintenance date 
-
-Fuel Consumed 
-
-Float 
-
-Liters/km 
-
-Assigned Driver 
-
-String 
-
-Driver ID 
-
-Trip Distance 
-
-Float 
-
-Total km traveled 
-
-Current Location 
-
-Geo Coordinate 
-
-Real-time GPS location 
-
-Assigned Route 
-
-String 
-
-Current route ID 
-
-Estimated Arrival Time 
-
-Timestamp 
-
-ETA to destination 
 
  
 
