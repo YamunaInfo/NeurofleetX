@@ -58,31 +58,7 @@ Predictive traffic congestion models.
 
  
 
-5. Technologies Suggested 
 
-Frontend: React.js / Angular / Vue.js (dashboard UI) 
-
-Backend: java Spring Boot 
-
-Database: PostgreSQL / MySQL / MongoDB (fleet & emergency data) 
-
-Real-time Tracking: Web Sockets, MQTT, or Firebase Realtime Database 
-
-Visualization: Chart.js, D3.js, or High charts (performance & traffic charts) 
-
-GPS/IoT Integration: GPS devices or mobile app trackers for emergency vehicles 
-
- 
-
-6. Benefits of Combined Module 
-
-Unified vehicle performance monitoring and emergency response tracking. 
-
-Optimized fleet operations and maintenance scheduling. 
-
-Faster and safer emergency services through traffic-aware routing. 
-
-Data-driven decision-making for fleet managers and dispatchers. 
 
  
 
