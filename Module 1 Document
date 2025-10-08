@@ -1,0 +1,55 @@
+📘 Module 1: Login and Signup Page
+🔹 Overview
+
+The Login and Signup Module is the entry point of the Smart City application.
+It allows users to create accounts and securely log in to access the system.
+This module focuses on user authentication and data validation without implementing role-based access control.
+
+🔹 Objectives
+
+To provide secure user registration and authentication.
+
+To ensure valid user credentials are stored safely in the database.
+
+To restrict access to authenticated users only.
+
+To offer a simple and user-friendly login interface.
+
+🔹 Features
+🔸 Signup (Registration)
+
+Users can register with name, email, and password.
+
+Duplicate email IDs are restricted to avoid multiple accounts.
+
+Passwords are encrypted before being stored in the database.
+
+Form validation ensures correct and complete user input.
+
+🔸 Login (Authentication)
+
+Users enter email and password to access their account.
+
+Backend verifies credentials against the database.
+
+Incorrect email or password shows an appropriate error message.
+
+Successful login redirects the user to the main dashboard/homepage.
+
+🔸 Security
+
+Passwords are securely hashed using BCrypt or another encryption method.
+
+Database never stores raw passwords.
+
+Logout functionality ensures session clearance.
+
+🔸 User Interface
+
+Simple, responsive forms with fields for Email and Password.
+
+Buttons for “Login” and “Signup”.
+
+Optionally includes “Forgot Password” and “Remember Me”.
+
+TechStack:React
