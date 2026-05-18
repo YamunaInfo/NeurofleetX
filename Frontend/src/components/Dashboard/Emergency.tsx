@@ -148,6 +148,10 @@ export const Emergency: React.FC<EmergencyProps> = ({ alerts }) => {
                 >
                   <option value="ambulance">🚑 Ambulance</option>
                   <option value="fire">🚒 Fire Truck</option>
+                  <option value="police">🚔 Police</option>
+                </select>
+              </div>
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                 <input
@@ -159,7 +163,7 @@ export const Emergency: React.FC<EmergencyProps> = ({ alerts }) => {
                   required
                 />
               </div>
-                  <option value="police">🚔 Police</option>
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
                 <input
@@ -171,7 +175,7 @@ export const Emergency: React.FC<EmergencyProps> = ({ alerts }) => {
                   required
                 />
               </div>
-                </select>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
                 <select 
@@ -183,7 +187,6 @@ export const Emergency: React.FC<EmergencyProps> = ({ alerts }) => {
                   <option value="medium">Medium</option>
                   <option value="high">High</option>
                 </select>
-              </div>
               </div>
               <div className="flex space-x-3 pt-4">
                 <button
