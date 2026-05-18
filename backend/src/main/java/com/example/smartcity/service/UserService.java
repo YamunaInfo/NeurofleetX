@@ -23,8 +23,11 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public Optional<User> login(String username, String rawPassword) {
-        Optional<User> u = userRepository.findByUsername(username);
+    public Optional<User> login(String identifier, String rawPassword) {
+        Optional<User> u = userRepository.findByUsername(identifier);
+        if (u.isEmpty()) {
+            u = userRepository.findByEmail(identifier);
+        }
         if (u.isPresent() && passwordEncoder.matches(rawPassword, u.get().getPassword())) {
             return u;
         }
