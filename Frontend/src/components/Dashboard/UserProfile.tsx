@@ -122,7 +122,6 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
     { name: 'Generate Reports', granted: true, icon: FileText },
     { name: 'System Administration', granted: user.role === 'admin', icon: Shield },
     { name: 'User Management', granted: user.role === 'admin', icon: User },
-    { name: 'Digital Twin Control', granted: user.role !== 'citizen', icon: Activity },
     { name: 'Export Data', granted: true, icon: Download }
   ];
 
