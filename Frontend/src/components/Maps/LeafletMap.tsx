@@ -78,10 +78,22 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
   const mapInstanceRef = useRef<L.Map | null>(null);
   const heatmapLayerRef = useRef<any>(null);
   const ambulanceMarkerRef = useRef<L.Marker | null>(null);
+  const signalMarkersRef = useRef<L.Marker[]>([]);
   const [isSimulating, setIsSimulating] = useState(false);
   const [selectedCity, setSelectedCity] = useState(cities[0]);
   const [heatmapVisible, setHeatmapVisible] = useState(showHeatmap);
   const [ambulancePosition, setAmbulancePosition] = useState(0);
+  const [heatScriptLoaded, setHeatScriptLoaded] = useState(false);
+
+  // Expose Leaflet globally for plugins like leaflet-heat
+  useEffect(() => {
+    (window as any).L = L;
+  }, []);
+
+  // Sync heatmapVisible state with showHeatmap prop
+  useEffect(() => {
+    setHeatmapVisible(showHeatmap);
+  }, [showHeatmap]);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -95,6 +107,9 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
+    // Clear old signal markers
+    signalMarkersRef.current = [];
+
     // Add traffic signals
     trafficSignals.forEach(signal => {
       const color = signal.status === 'green' ? '#10B981' : 
@@ -107,18 +122,24 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
         iconAnchor: [10, 10]
       });
 
-      const marker = L.marker(signal.position as [number, number], { icon: signalIcon })
-        .addTo(map)
-        .bindPopup(`
-          <div style="text-align: center; padding: 8px;">
-            <h4 style="margin: 0 0 8px 0; color: #1F2937;">${signal.intersection}</h4>
-            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
-              <div style="width: 12px; height: 12px; background-color: ${color}; border-radius: 50%; margin-right: 8px;"></div>
-              <span style="color: #374151; font-weight: 600; text-transform: capitalize;">${signal.status} Light</span>
-            </div>
-            <p style="margin: 0; color: #6B7280; font-size: 12px;">Traffic Signal ID: ${signal.id}</p>
+      const marker = L.marker(signal.position as [number, number], { icon: signalIcon });
+      
+      if (showTraffic) {
+        marker.addTo(map);
+      }
+      
+      signalMarkersRef.current.push(marker);
+
+      marker.bindPopup(`
+        <div style="text-align: center; padding: 8px;">
+          <h4 style="margin: 0 0 8px 0; color: #1F2937;">${signal.intersection}</h4>
+          <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 8px;">
+            <div style="width: 12px; height: 12px; background-color: ${color}; border-radius: 50%; margin-right: 8px;"></div>
+            <span style="color: #374151; font-weight: 600; text-transform: capitalize;">${signal.status} Light</span>
           </div>
-        `);
+          <p style="margin: 0; color: #6B7280; font-size: 12px;">Traffic Signal ID: ${signal.id}</p>
+        </div>
+      `);
     });
 
     // Add ambulance marker
@@ -169,13 +190,33 @@ export const LeafletMap: React.FC<LeafletMapProps> = ({
         mapInstanceRef.current = null;
       }
     };
-  }, [selectedCity]);
+  }, [selectedCity, heatScriptLoaded]);
+
+  // Sync signal markers visibility with showTraffic prop
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      signalMarkersRef.current.forEach(marker => {
+        if (showTraffic) {
+          if (!mapInstanceRef.current!.hasLayer(marker)) {
+            marker.addTo(mapInstanceRef.current!);
+          }
+        } else {
+          if (mapInstanceRef.current!.hasLayer(marker)) {
+            mapInstanceRef.current!.removeLayer(marker);
+          }
+        }
+      });
+    }
+  }, [showTraffic]);
 
   // Load leaflet.heat plugin
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js';
     script.async = true;
+    script.onload = () => {
+      setHeatScriptLoaded(true);
+    };
     document.head.appendChild(script);
 
     return () => {
