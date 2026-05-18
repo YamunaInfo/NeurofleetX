@@ -1,12 +1,202 @@
-import React, { useState } from 'react';
-import { Car, MapPin, Clock, User, Plus, Navigation, DollarSign, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Car, MapPin, Clock, User, Plus, Navigation, IndianRupee, X } from 'lucide-react';
 import { BookingRequest, Vehicle } from '../../types';
+import { dataService } from '../../services/dataService';
 import { mockBookings, mockVehicles } from '../../utils/mockData';
 
-export const VehicleBooking: React.FC = () => {
-  const [bookings, setBookings] = useState<BookingRequest[]>(mockBookings);
+interface VehicleBookingProps {
+  bookings?: BookingRequest[];
+  vehicles?: Vehicle[];
+}
+
+interface NewBookingFormProps {
+  onClose: () => void;
+  onBookingCreated: (newBooking: BookingRequest) => void;
+}
+
+const NewBookingForm: React.FC<NewBookingFormProps> = ({ onClose, onBookingCreated }) => {
+  const [formData, setFormData] = useState({
+    vehicleType: 'emergency',
+    pickupAddress: '',
+    destinationAddress: '',
+    urgency: 'medium'
+  });
+
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    const pickupTrim = formData.pickupAddress.trim();
+    const destTrim = formData.destinationAddress.trim();
+    if (!pickupTrim || !destTrim) {
+      setError('Please enter both pickup and destination addresses.');
+      return;
+    }
+    setSubmitting(true);
+    const basePrice = formData.vehicleType === 'emergency' ? 150 : 50;
+    const urgencyMultiplier = {
+      low: 1,
+      medium: 1.2,
+      high: 1.5,
+      critical: 2
+    }[formData.urgency as 'low' | 'medium' | 'high' | 'critical'];
+    const totalAmount = Math.round(basePrice * urgencyMultiplier);
+    try {
+      // format startTime as LocalDateTime-like string (YYYY-MM-DDTHH:mm:ss)
+      const dt = new Date();
+      const startTime = dt.toISOString().slice(0, 19);
+      const created = await dataService.createBooking({
+        origin: pickupTrim,
+        destination: destTrim,
+        status: 'PENDING',
+        startTime,
+      });
+      const formattedCreated: BookingRequest = {
+        ...created,
+        vehicleType: formData.vehicleType as 'emergency' | 'private',
+        urgency: formData.urgency as 'low' | 'medium' | 'high' | 'critical',
+      };
+      onBookingCreated(formattedCreated);
+      onClose();
+      setFormData({ vehicleType: 'emergency', pickupAddress: '', destinationAddress: '', urgency: 'medium' });
+    } catch (err: any) {
+      setError(err?.response?.data?.message || err.message || 'Failed to create booking');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const calculateAmount = () => {
+    const basePrice = formData.vehicleType === 'emergency' ? 150 : 50;
+    const urgencyMultiplier = {
+      low: 1,
+      medium: 1.2,
+      high: 1.5,
+      critical: 2
+    }[formData.urgency as 'low' | 'medium' | 'high' | 'critical'];
+    return Math.round(basePrice * urgencyMultiplier);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50" onClick={onClose}>
+      <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-bold text-white">New Booking Request</h3>
+          <button 
+            onClick={onClose}
+            className="text-gray-400 hover:text-white"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="text-sm text-red-400 bg-red-900/20 p-2 rounded">{error}</div>
+          )}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Vehicle Type</label>
+            <select 
+              value={formData.vehicleType}
+              onChange={(e) => setFormData({...formData, vehicleType: e.target.value})}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white"
+            >
+              <option value="emergency">Emergency</option>
+              <option value="private">Private</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Pickup Location</label>
+            <input
+              type="text"
+              value={formData.pickupAddress}
+              onChange={(e) => setFormData({...formData, pickupAddress: e.target.value})}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white"
+              placeholder="Enter pickup address"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Destination</label>
+            <input
+              type="text"
+              value={formData.destinationAddress}
+              onChange={(e) => setFormData({...formData, destinationAddress: e.target.value})}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white"
+              placeholder="Enter destination address"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Urgency Level</label>
+            <select 
+              value={formData.urgency}
+              onChange={(e) => setFormData({...formData, urgency: e.target.value})}
+              className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
+
+          <div className="bg-gray-800 rounded-lg p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <IndianRupee className="w-5 h-5 text-green-400 mr-2" />
+                <span className="text-gray-300">Estimated Amount</span>
+              </div>
+              <span className="text-green-400 font-bold text-lg">₹{calculateAmount()}</span>
+            </div>
+            <p className="text-gray-400 text-sm mt-1">
+              Base: ₹{formData.vehicleType === 'emergency' ? '150' : '50'} + {formData.urgency} priority
+            </p>
+          </div>
+
+          <div className="flex space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className={`flex-1 ${submitting ? 'bg-blue-400 cursor-wait' : 'bg-blue-500 hover:bg-blue-600'} text-white py-2 rounded-lg transition-colors`}
+            >
+              {submitting ? 'Booking...' : 'Book Vehicle'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export const VehicleBooking: React.FC<VehicleBookingProps> = ({ bookings: propBookings, vehicles: propVehicles }) => {
+  const [bookings, setBookings] = useState<BookingRequest[]>(propBookings && propBookings.length ? propBookings : mockBookings);
   const [showNewBooking, setShowNewBooking] = useState(false);
-  const [vehicles] = useState<Vehicle[]>(mockVehicles);
+  const [vehicles, setVehicles] = useState<Vehicle[]>(propVehicles && propVehicles.length ? propVehicles : mockVehicles);
+
+  useEffect(() => {
+    if (propBookings && propBookings.length) {
+      setBookings(propBookings);
+    }
+  }, [propBookings]);
+
+  useEffect(() => {
+    if (propVehicles && propVehicles.length) {
+      setVehicles(propVehicles);
+    }
+  }, [propVehicles]);
 
   const getUrgencyColor = (urgency: string) => {
     switch (urgency) {
@@ -26,164 +216,6 @@ export const VehicleBooking: React.FC = () => {
       case 'cancelled': return 'text-red-400';
       default: return 'text-gray-400';
     }
-  };
-
-  const NewBookingForm = () => {
-    const [formData, setFormData] = useState({
-      vehicleType: 'emergency',
-      pickupAddress: '',
-      destinationAddress: '',
-      urgency: 'medium'
-    });
-
-    const handleSubmit = (e: React.FormEvent) => {
-      e.preventDefault();
-      const basePrice = formData.vehicleType === 'emergency' ? 150 : 50;
-      const urgencyMultiplier = {
-        low: 1,
-        medium: 1.2,
-        high: 1.5,
-        critical: 2
-      }[formData.urgency];
-      const totalAmount = Math.round(basePrice * urgencyMultiplier);
-      
-      const newBooking: BookingRequest = {
-        id: Date.now().toString(),
-        userId: 'current-user',
-        vehicleType: formData.vehicleType as 'emergency' | 'private',
-        pickup: {
-          lat: 28.6139,
-          lng: 77.2090,
-          address: formData.pickupAddress
-        },
-        destination: {
-          lat: 28.6129,
-          lng: 77.2295,
-          address: formData.destinationAddress
-        },
-        urgency: formData.urgency as 'low' | 'medium' | 'high' | 'critical',
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-        amount: totalAmount
-      };
-      
-      setBookings([...bookings, newBooking]);
-      setShowNewBooking(false);
-      setFormData({
-        vehicleType: 'emergency',
-        pickupAddress: '',
-        destinationAddress: '',
-        urgency: 'medium'
-      });
-    };
-
-    const calculateAmount = () => {
-      const basePrice = formData.vehicleType === 'emergency' ? 150 : 50;
-      const urgencyMultiplier = {
-        low: 1,
-        medium: 1.2,
-        high: 1.5,
-        critical: 2
-      }[formData.urgency];
-      return Math.round(basePrice * urgencyMultiplier);
-    };
-
-    return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50" onClick={() => setShowNewBooking(false)}>
-        <div className="bg-gray-900 rounded-2xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold text-white">New Booking Request</h3>
-            <button 
-              onClick={() => setShowNewBooking(false)}
-              className="text-gray-400 hover:text-white"
-            >
-              ✕
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Vehicle Type</label>
-              <select 
-                value={formData.vehicleType}
-                onChange={(e) => setFormData({...formData, vehicleType: e.target.value})}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white"
-              >
-                <option value="emergency">Emergency</option>
-                <option value="private">Private</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Pickup Location</label>
-              <input
-                type="text"
-                value={formData.pickupAddress}
-                onChange={(e) => setFormData({...formData, pickupAddress: e.target.value})}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white"
-                placeholder="Enter pickup address"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Destination</label>
-              <input
-                type="text"
-                value={formData.destinationAddress}
-                onChange={(e) => setFormData({...formData, destinationAddress: e.target.value})}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white"
-                placeholder="Enter destination address"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Urgency Level</label>
-              <select 
-                value={formData.urgency}
-                onChange={(e) => setFormData({...formData, urgency: e.target.value})}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="critical">Critical</option>
-              </select>
-            </div>
-
-            <div className="bg-gray-800 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <DollarSign className="w-5 h-5 text-green-400 mr-2" />
-                  <span className="text-gray-300">Estimated Amount</span>
-                </div>
-                <span className="text-green-400 font-bold text-lg">${calculateAmount()}</span>
-              </div>
-              <p className="text-gray-400 text-sm mt-1">
-                Base: ${formData.vehicleType === 'emergency' ? '150' : '50'} + {formData.urgency} priority
-              </p>
-            </div>
-
-            <div className="flex space-x-3 pt-4">
-              <button
-                type="button"
-                onClick={() => setShowNewBooking(false)}
-                className="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded-lg transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg transition-colors"
-              >
-                Book Vehicle
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
   };
 
   const handleCancelBooking = (bookingId: string) => {
@@ -261,10 +293,10 @@ export const VehicleBooking: React.FC = () => {
                   {booking.amount && (
                     <div className="flex items-center justify-between mb-4 bg-green-50 rounded-lg p-3">
                       <div className="flex items-center">
-                        <DollarSign className="w-5 h-5 text-green-600 mr-2" />
+                        <IndianRupee className="w-5 h-5 text-green-600 mr-2" />
                         <span className="text-gray-700 font-medium">Total Amount</span>
                       </div>
-                      <span className="text-green-600 font-bold text-lg">${booking.amount}</span>
+                      <span className="text-green-600 font-bold text-lg">₹{booking.amount}</span>
                     </div>
                   )}
 
@@ -357,7 +389,12 @@ export const VehicleBooking: React.FC = () => {
         </div>
       </div>
 
-      {showNewBooking && <NewBookingForm />}
+      {showNewBooking && (
+        <NewBookingForm 
+          onClose={() => setShowNewBooking(false)} 
+          onBookingCreated={(newBooking) => setBookings(prev => [...prev.filter(b => b.id !== newBooking.id), newBooking])} 
+        />
+      )}
     </div>
   );
 };
