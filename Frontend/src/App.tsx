@@ -9,20 +9,21 @@ import { Emergency } from './components/Dashboard/Emergency';
 import { TrafficSignals } from './components/Dashboard/TrafficSignals';
 import { Analytics } from './components/Dashboard/Analytics';
 import { VehicleBooking } from './components/Dashboard/VehicleBooking';
-import { DigitalTwin } from './components/Dashboard/DigitalTwin';
 import { UserProfile } from './components/Dashboard/UserProfile';
 import { authService } from './services/authService';
 import { User } from './types';
-import { 
-  mockTrafficData, 
-  mockEmergencyAlerts, 
-  mockTrafficSignals 
-} from './utils/mockData';
+import { dataService } from './services/dataService';
+import { mockTrafficData, mockEmergencyAlerts, mockTrafficSignals, mockBookings, mockVehicles } from './utils/mockData';
 import { Settings, Activity } from 'lucide-react';
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
+  const [liveTrafficData, setLiveTrafficData] = useState(null as any);
+  const [liveEmergencies, setLiveEmergencies] = useState([] as any[]);
+  const [liveSignals, setLiveSignals] = useState([] as any[]);
+  const [liveVehicles, setLiveVehicles] = useState([] as any[]);
+  const [liveBookings, setLiveBookings] = useState([] as any[]);
   const [activeSection, setActiveSection] = useState('overview');
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
@@ -31,6 +32,81 @@ function App() {
     if (currentUser) {
       setUser(currentUser);
     }
+    // fetch initial live data and start polling every 5s
+    let mounted = true;
+    const fetchAll = async () => {
+      try {
+        const [dt, em, sig, veh, bk] = await Promise.all([
+          dataService.getTrafficData(),
+          dataService.getEmergencyAlerts(),
+          dataService.getTrafficSignals(),
+          dataService.getVehicles(),
+          dataService.getBookings(),
+        ]);
+        if (!mounted) return;
+        setLiveTrafficData(dt);
+        setLiveEmergencies(em);
+        setLiveSignals(sig);
+        setLiveVehicles(veh);
+        setLiveBookings(bk);
+      } catch (e) {
+        console.error('Live data fetch failed', e);
+      }
+    };
+
+    fetchAll();
+    const id = setInterval(fetchAll, 5000);
+
+    // also attempt to connect to server-sent events for real-time push
+    let es: EventSource | null = null;
+    try {
+      es = new EventSource((import.meta.env.VITE_API_BASE_URL || '/api') + '/stream');
+      es.onmessage = (ev) => {
+        try {
+          const parsed = JSON.parse(ev.data);
+          if (parsed.vehicles) setLiveVehicles(parsed.vehicles);
+          if (parsed.emergencies) setLiveEmergencies(parsed.emergencies.map((e: any) => ({
+            id: e.id?.toString(),
+            type: e.severity?.toLowerCase() || 'ambulance',
+            description: e.description,
+            location: e.location,
+            priority: e.severity?.toLowerCase() || 'medium',
+            timestamp: e.timestamp || new Date().toISOString(),
+            status: e.status?.toLowerCase() || 'active'
+          })));
+          if (parsed.signals) setLiveSignals(parsed.signals.map((s: any) => ({
+            id: s.id?.toString(),
+            intersection: s.signalLocation || 'Unknown',
+            status: 'active',
+            currentPhase: s.status?.toLowerCase() || 'red',
+            timing: { red: 60, yellow: 5, green: 45 },
+            location: { lat: 28.6139, lng: 77.2090 }
+          })));
+          if (parsed.bookings) setLiveBookings(parsed.bookings.map((b: any) => ({
+            id: b.id?.toString(),
+            userId: b.user?.id?.toString() || 'guest',
+            vehicleType: b.vehicle?.make?.toLowerCase().includes('ambulance') ? 'emergency' : 'private',
+            pickup: { lat: 28.6139, lng: 77.2090, address: b.origin || 'Unknown'},
+            destination: { lat: 28.6129, lng: 77.2295, address: b.destination || 'Unknown'},
+            urgency: 'medium',
+            status: b.status?.toLowerCase() || 'pending',
+            assignedVehicle: b.vehicle?.id?.toString(),
+            estimatedArrival: b.startTime || null,
+            createdAt: b.startTime || new Date().toISOString()
+          })));
+        } catch (err) {
+          console.error('Failed to parse SSE data', err);
+        }
+      };
+      es.onerror = (err) => {
+        console.warn('SSE connection error, falling back to polling', err);
+        if (es) { es.close(); es = null; }
+      };
+    } catch (e) {
+      console.warn('EventSource not available', e);
+    }
+
+    return () => { mounted = false; clearInterval(id); if (es) es.close(); };
   }, []);
 
   const handleLogin = async (email: string, password: string) => {
@@ -82,19 +158,17 @@ function App() {
   const renderContent = () => {
     switch (activeSection) {
       case 'overview':
-        return <Overview data={mockTrafficData} />;
-      case 'digital-twin':
-        return <DigitalTwin />;
+        return <Overview data={liveTrafficData || mockTrafficData} />;
       case 'traffic-monitor':
         return <TrafficMonitor />;
       case 'emergency':
-        return <Emergency alerts={mockEmergencyAlerts} />;
+        return <Emergency alerts={liveEmergencies.length ? liveEmergencies : mockEmergencyAlerts} />;
       case 'traffic-signals':
-        return <TrafficSignals signals={mockTrafficSignals} />;
+        return <TrafficSignals signals={liveSignals.length ? liveSignals : mockTrafficSignals} />;
       case 'analytics':
         return <Analytics />;
       case 'vehicle-booking':
-        return <VehicleBooking />;
+        return <VehicleBooking bookings={liveBookings.length ? liveBookings : mockBookings} vehicles={liveVehicles.length ? liveVehicles : mockVehicles} />;
       case 'profile':
         return <UserProfile user={user} />;
       case 'ai-control':
@@ -192,7 +266,7 @@ function App() {
         <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
         
         <div className="flex-1 flex flex-col overflow-hidden">
-          <Header user={user} onLogout={handleLogout} />
+          <Header user={user} onLogout={handleLogout} liveStatus={liveTrafficData ? 'live' : 'mock'} />
           
           <main className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
             {renderContent()}
