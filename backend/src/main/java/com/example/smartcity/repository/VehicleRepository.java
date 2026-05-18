@@ -2,5 +2,12 @@ package com.example.smartcity.repository;
 
 import com.example.smartcity.model.Vehicle;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface VehicleRepository extends JpaRepository<Vehicle, Long> {}
+import java.util.List;
+
+@Repository
+public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
+    List<Vehicle> findByStatus(String status);
+    Vehicle findByRegistrationNumber(String registrationNumber);
+}
