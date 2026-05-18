@@ -16,6 +16,7 @@ public class Vehicle {
     private String registrationNumber;
     private String model;
     private String make;
-    private Integer year;
+    @Column(name = "model_year")
+    private Integer modelYear;
     private String status;
 }
