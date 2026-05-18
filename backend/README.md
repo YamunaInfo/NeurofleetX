@@ -4,7 +4,7 @@ SmartCity Backend (Spring Boot)
 What's included:
 - Full Spring Boot project with entities, repositories, services and controllers
   for Users/Auth, UserProfiles, Vehicles, Drivers, Bookings, Emergencies,
-  Traffic Signals, Analytics, AI Control Logs and Digital Twin.
+  Traffic Signals, Analytics, and AI Control Logs.
 - Simple SecurityConfig that permits all requests (development). Passwords are hashed using BCrypt.
 - application.properties preconfigured to connect to `smart_city_db`
 
