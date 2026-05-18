@@ -12,7 +12,6 @@ const menuItems = [
   { id: 'emergency', label: 'Emergency', icon: AlertTriangle },
   { id: 'traffic-signals', label: 'Traffic Signals', icon: Activity },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-  { id: 'digital-twin', label: 'Digital Twin', icon: Cube },
   { id: 'vehicle-booking', label: 'Vehicle Booking', icon: Car },
   { id: 'ai-control', label: 'AI Control', icon: Settings },
   { id: 'profile', label: 'User Profile', icon: User }
